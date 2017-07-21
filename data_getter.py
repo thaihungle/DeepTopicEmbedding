@@ -5,41 +5,52 @@ import pickle
 import numpy as np
 
 def split_full_data(singlefn, BATCH_TRAIN_SIZE=20, BATCH_TEST_SIZE=20):
+    print('start load data')
     dir, fname = os.path.split(singlefn)
     ((X_train, y_train),
      (X_test, y_test),
      word_index,
      (MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH)) \
         = pickle.load(open(singlefn, 'rb'))
-    newdir=dir+'/'+fname
-    if os.path.isdir(newdir):
+    newdir=dir+'/'+fname.split('.')[0]
+    print(newdir)
+    print('done load data...')
+
+    if not os.path.isdir(newdir):
         os.mkdir(newdir)
 
     train_dir=newdir+'/train'
-    if os.path.isdir(train_dir):
+    print(train_dir)
+    if not os.path.isdir(train_dir):
         os.mkdir(train_dir)
 
     test_dir = newdir + '/test'
-    if os.path.isdir(test_dir):
+    print(test_dir)
+    if not os.path.isdir(test_dir):
         os.mkdir(test_dir)
 
     num_sample_train=X_train.shape[0]
     num=0
 
+    print('dump train data...')
+
     while num<num_sample_train:
-        bfxname=train_dir+'/Xy_train.{}.pkl'.sample(num)
+        bfxname=train_dir+'/Xy_train.{}.pkl'.format(num)
         pickle.dump((X_train[num:num+BATCH_TRAIN_SIZE],y_train[num:num+BATCH_TRAIN_SIZE]), open(bfxname,'wb'))
         num+=BATCH_TRAIN_SIZE
 
     num=0
     num_sample_test = X_test.shape[0]
+
+    print('dump test data')
+
     while num<num_sample_test:
-        bfxname=test_dir+'/Xy_test.{}.pkl'.sample(num)
+        bfxname=test_dir+'/Xy_test.{}.pkl'.format(num)
         pickle.dump((X_test[num:num+BATCH_TEST_SIZE],y_test[num:num+BATCH_TEST_SIZE]), open(bfxname,'wb'))
         num += BATCH_TEST_SIZE
 
     pickle.dump((word_index, MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH, BATCH_TRAIN_SIZE, BATCH_TEST_SIZE),
-                open(newdir+'/meta.pkl'))
+                open(newdir+'/meta.pkl','wb'))
 
     print('done!')
 

@@ -65,7 +65,8 @@ def build_model(model_name='ha_lstm', conti=True):
         =	pickle.load(open('./data/imdb_prep_stem.pkl', 'rb'))
 
     emb_matrix=ntp.get_glove_emb_100(GLOVE_DIR,word_index,MAX_NB_WORDS)
-    emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.10.ha2.beta')
+    emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.40.ha2.beta')
+    #emb_matrix=emb_matrix2
     # emb_matrix3 = ntp.get_topic_emb('./embfiles/fstm.30000.0.ha.beta')
 
     print('start build model')
@@ -80,13 +81,13 @@ def build_model(model_name='ha_lstm', conti=True):
 
         embedding_layer = Embedding(emb_matrix.shape[0],
                                     emb_matrix.shape[1],
-                                    weights=None,
+                                    weights=[emb_matrix],
                                     input_length=MAX_SENT_LENGTH,
                                     trainable=True)
 
         embedding_layer2 = Embedding(emb_matrix2.shape[0],
                                      emb_matrix2.shape[1],
-                                    weights=None,
+                                    weights=[emb_matrix2],
                                     input_length=MAX_SENT_LENGTH,
                                     trainable=True)
 
