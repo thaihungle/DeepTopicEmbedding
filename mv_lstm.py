@@ -27,6 +27,8 @@ from keras.layers import merge
 
 import nn_topic_pretrain as ntp
 
+top_words = 5000
+
 def build_model(model_name='mv_lstm', conti=True):
     fname_model = os.getcwd() + "/" + model_name + '/modelfile.json'
     model_dir = os.getcwd() + "/" + model_name
@@ -36,7 +38,7 @@ def build_model(model_name='mv_lstm', conti=True):
     # fix random seed for reproducibility
     numpy.random.seed(7)
     # load the dataset but only keep the top n words, zero the rest
-    top_words = 5000
+
     print('start load imdb...')
     (X_train, y_train), (X_test, y_test) = imdb.load_data(nb_words=top_words)
     print('done load imdb!')
@@ -122,6 +124,42 @@ def build_model(model_name='mv_lstm', conti=True):
     print('start evaluating...')
     scores = model.evaluate(X_test, y_test, verbose=1)
     print("Accuracy: %.2f%%" % (scores[1]*100))
+
+def evaluate(model_name):
+    model_dir = os.getcwd() + "/" + model_name
+    fname_model = model_dir + '/modelfile.json'
+    fname_weights = model_dir + "/modelweights.h5"
+    # load json and create model
+
+    print('start load imdb...')
+    (X_train, y_train), (X_test, y_test) = imdb.load_data(nb_words=top_words)
+    print('done load imdb!')
+    max_review_length = 500
+    CHOP_SIZE = 50
+    print('start padding...')
+    print('start padding...')
+    X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
+    X_test = sequence.pad_sequences(X_test, maxlen=max_review_length)
+
+    # X_train, y_train = ol.prepareXychop(X_train, y_train, CHOP_SIZE)
+
+    y_train = to_categorical(numpy.asarray(y_train))
+    y_test = to_categorical(numpy.asarray(y_test))
+
+    json_file = open(fname_model, 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    model = model_from_json(loaded_model_json)
+    model.load_weights(fname_weights)
+    print("Loaded weights from disk")
+
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy', 'fmeasure', 'recall'])
+
+    # Final evaluation of the model
+    print("predict....")
+    scores = model.evaluate(X_test, y_test, verbose=1)
+    print(scores)
+    print("Accuracy: %.2f%%" % (scores[1] * 100))
 
 
 if __name__ == '__main__':
