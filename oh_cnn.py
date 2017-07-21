@@ -23,6 +23,7 @@ from keras.layers.core import  Activation, Masking
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing import sequence
 import keras.optimizers  as opt
+import nn_topic_pretrain as ntp
 
 # fix random seed for reproducibility
 numpy.random.seed(7)
@@ -48,13 +49,13 @@ print('build model...')
 review_input = Input(shape=(max_review_length,), dtype='int32')
 review_encoder = ol.OneHot(top_words+1, input_length=max_review_length)(review_input)
 
-embedding_layer = Embedding(embedding_weights.shape[0],                                                                                │················································
-                                    embedding_weights.shape[1],                                                                                │················································
-                                weights=[embedding_weights],                                                                                   │················································
-                                input_length=MAX_SEQUENCE_LENGTH,                                                                              │················································
-                                trainable=True)                                                                                                │················································
-                                                                                                                                               │················································
-                                                                                                                                               │················································
+embedding_layer = Embedding(embedding_weights.shape[0], 
+                            embedding_weights.shape[1],
+                            weights=[embedding_weights],
+                            input_length=max_review_length,
+                            trainable=True)
+
+
 embedded_sequences = embedding_layer(review_input) 
 
 l_cov1= Conv1D(1000, 3, activation='relu')(embedded_sequences)
