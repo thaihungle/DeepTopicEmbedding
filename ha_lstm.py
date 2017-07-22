@@ -39,9 +39,9 @@ logger.setLevel(logging.INFO)
 
 MAX_SENT_LENGTH = 500
 MAX_SENTS = 128
-EMBEDDING_DIM = 100
+EMBEDDING_DIM = 150
 VALIDATION_SPLIT = 0.2
-LSTM_DIM = 50
+LSTM_DIM = 150
 SMALL_SENTS = 1
 MAX_NB_WORDS=30000
 
@@ -65,7 +65,7 @@ def build_model(model_name='ha_lstm', conti=True):
         =	pickle.load(open('./data/imdb_prep_stem.pkl', 'rb'))
 
     emb_matrix=ntp.get_glove_emb_100(GLOVE_DIR,word_index,MAX_NB_WORDS)
-    emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.40.ha2.beta')
+    emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.10.ha2.beta')
     #emb_matrix=emb_matrix2
     # emb_matrix3 = ntp.get_topic_emb('./embfiles/fstm.30000.0.ha.beta')
 
@@ -99,13 +99,13 @@ def build_model(model_name='ha_lstm', conti=True):
 
         mv_vector = merge([embedded_sequences2, embedded_sequences], mode='concat')
 
-        conv = Convolution1D(nb_filter=128,
+        conv = Convolution1D(nb_filter=100,
                              filter_length=11,
                              border_mode='same',
                              activation='relu')(embedded_sequences2)
 
         mp = MaxPooling1D(pool_length=conv._keras_shape[1])(conv)
-        mp = Flatten()(Dropout(0.1)(mp))
+        mp = Flatten()(Dropout(0.05)(mp))
         #l_lstm2 = Bidirectional(LSTM(LSTM_DIM, return_sequences=False))(mp)
 
         # mv_vector = merge([conv, embedded_sequences], mode='concat')
