@@ -110,14 +110,16 @@ def build_model(model_name='ha_lstm', conti=True):
         filter_sizes = [3, 7, 11]
         convs = []
         for fsz in filter_sizes:
-            l_conv = Conv1D(nb_filter=100, filter_length=fsz, activation='relu')(embedded_sequences)
+            l_conv = Conv1D(nb_filter=100, filter_length=fsz, activation='relu')(embedded_sequences2)
             l_pool = MaxPooling1D(l_conv._keras_shape[1])(l_conv)
             convs.append(l_pool)
 
         l_merge = Merge(mode='concat', concat_axis=1)(convs)
 
 
-        att = MaxPooling1D(l_merge._keras_shape[1])(l_merge)  # [n_samples, n_steps, rnn_dim]
+        mp = MaxPooling1D(l_merge._keras_shape[1])(l_merge)  # [n_samples, n_steps, rnn_dim]
+
+        mp = Flatten()(mp)
 
         #l_lstm2 = Bidirectional(LSTM(LSTM_DIM, return_sequences=False))(mp)
 
@@ -138,8 +140,8 @@ def build_model(model_name='ha_lstm', conti=True):
         att = Reshape((1, att._keras_shape[1]))(att)
         lstm = merge([att, l_lstm], mode='dot', dot_axes=(2, 1))  # [n_samples, rnn_dim]
         lstm = Flatten()(lstm)
-        lstm = merge([lstm, mp], mode='concat')
-        sentEncoder = Model(sentence_input, lstm)
+        #lstm = merge([lstm, mp], mode='concat')
+        sentEncoder = Model(sentence_input, mp)
 
         # sentEncoder = Model(sentence_input, l_lstm)
 
