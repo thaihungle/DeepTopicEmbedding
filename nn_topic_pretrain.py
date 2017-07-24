@@ -1011,6 +1011,8 @@ def gen_imdb_tf_form_batch(train_filename, test_filename, input_dir):
             X_train=Xs
             y_train=ys
         else:
+            print(X_train.shape)
+            print(Xs.shape)
             X_train=np.concatenate((X_train,Xs), axis=0)
             y_train = np.concatenate((y_train, ys), axis=0)
         if i%1000==0:
