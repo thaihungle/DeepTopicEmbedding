@@ -987,7 +987,7 @@ def gen_imdb_tf_from_obj(X_train, y_train, X_test, y_test,
             c += 1
     print('done write test data...')
 
-def gen_imdb_tf_raw_norm(train_filename, test_filename, inputfn):
+def gen_imdb_tf_form_one_pickle(train_filename, test_filename, inputfn):
     print('start read...')
 
     ((X_train, y_train),
@@ -999,6 +999,39 @@ def gen_imdb_tf_raw_norm(train_filename, test_filename, inputfn):
     gen_imdb_tf_from_obj(X_train, y_train, X_test, y_test,
                          train_filename, test_filename)
 
+def gen_imdb_tf_form_batch(train_filename, test_filename, input_dir):
+    import glob
+    all_files = glob.glob(input_dir + '/train/*.pkl')
+    X_train=None
+    y_train=None
+    print('start get obj train')
+    for i,fn in enumerate(all_files):
+        (Xs, ys) = pickle.load(open(fn, 'rb'))
+        if not X_train:
+            X_train=Xs
+            y_train=ys
+        else:
+            X_train=np.vstack((X_train,Xs))
+            y_train = np.vstack((y_train, ys))
+        if i%1000==0:
+            print('done {}'.format(i))
+
+    all_files = glob.glob(input_dir + '/test/*.pkl')
+    X_test = None
+    y_test = None
+    print('start get obj test')
+    for i, fn in enumerate(all_files):
+        (Xs, ys) = pickle.load(open(fn, 'rb'))
+        if not X_test:
+            X_test = Xs
+            y_test = ys
+        else:
+            X_test = np.vstack((X_test, Xs))
+            y_test = np.vstack((y_test, ys))
+        if i%1000==0:
+            print('done {}'.format(i))
+
+    gen_imdb_tf_from_obj(X_train, y_train, X_test, y_test, train_filename, test_filename)
 
 
 
