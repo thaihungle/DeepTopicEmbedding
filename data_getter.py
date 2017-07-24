@@ -115,5 +115,5 @@ class File_Generator:
                 yield (Xs, ys)
 
 if __name__ == '__main__':
-    split_full_data('./data/imdb_prep_stem.pkl',20, 20)
-
+    # split_full_data('./data/imdb_prep_stem.pkl',20, 20)
+    split_full_data('./data/big_imdb_prep_ha50200.pkl', 20, 20)

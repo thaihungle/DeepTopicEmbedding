@@ -180,7 +180,7 @@ def build_model(model_name='ha_lstm', conti=True):
 
 
     model.compile(loss='categorical_crossentropy',
-                  optimizer= opt.RMSprop(),
+                  optimizer= opt.RMSprop(decay=0.01),
                   metrics=['acc'])
 
     print(model.summary())

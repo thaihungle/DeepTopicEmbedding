@@ -666,7 +666,7 @@ def preprocess_rawbig_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH):
     print('start dump....')
     dg.split_data(data_train, labels_train,data_test, labels_test,
                   word2ind,MAX_NB_WORDS,MAX_SENTS,MAX_SENT_LENGTH,
-                  './data/big_imdb_prep_ha50200.pkl',50,50)
+                  './data/big_imdb_prep_ha50200.pkl',20,20)
     print('done!!!')
 
 
@@ -1013,7 +1013,7 @@ def gen_imdb_tf_form_batch(train_filename, test_filename, input_dir):
         else:
             X_train=np.concatenate((X_train,Xs), axis=0)
             y_train = np.concatenate((y_train, ys), axis=0)
-        if i%1000==0:
+        if i%100==0:
             print('done {}'.format(i))
 
     all_files = glob.glob(input_dir + '/test/*.pkl')
@@ -1028,7 +1028,7 @@ def gen_imdb_tf_form_batch(train_filename, test_filename, input_dir):
         else:
             X_test = np.concatenate((X_test,Xs), axis=0)
             y_test = np.concatenate((y_test,Xs), axis=0)
-        if i%1000==0:
+        if i%100==0:
             print('done {}'.format(i))
 
     gen_imdb_tf_from_obj(X_train, y_train, X_test, y_test, train_filename, test_filename)
@@ -1229,10 +1229,10 @@ if __name__ == '__main__':
     #                        MAX_SENT_LENGTH=1000)
 
 
-    # preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
-    #                           MAX_SENT_LENGTH=200,
-    #                           MAX_SENTS=20)
+    preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
+                               MAX_SENT_LENGTH=200,
+                               MAX_SENTS=50)
 
-    gen_imdb_tf_form_batch('./data/big_imdb_count_data/big_imdb_raw_train.data',
-                           './data/big_imdb_count_data/big_imdb_raw_test.data',
-                           './data/big_imdb_prep_ha50200/')
+    # gen_imdb_tf_form_batch('./data/big_imdb_count_data/big_imdb_raw_train.data',
+    #                        './data/big_imdb_count_data/big_imdb_raw_test.data',
+    #                        './data/big_imdb_prep_ha50200/')
