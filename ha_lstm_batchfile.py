@@ -41,7 +41,7 @@ MAX_SENT_LENGTH = 500
 MAX_SENTS = 128
 EMBEDDING_DIM = 100
 VALIDATION_SPLIT = 0.2
-LSTM_DIM = 50
+LSTM_DIM = 100
 SMALL_SENTS = 1
 MAX_NB_WORDS=30000
 
@@ -58,8 +58,10 @@ def build_model(model_name='ha_lstm', conti=True):
         os.mkdir(model_dir)
 
     print('load prep data...')
-    fg=dg.File_Generator('./data/imdb_prep_stem.pkl/',2)
-    (word_index, MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH, BATCH_TRAIN_SIZE, BATCH_TEST_SIZE)\
+    fg=dg.File_Generator('./data/imdb_prep_stem/',2)
+    (word_index, MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH,
+     BATCH_TRAIN_SIZE, BATCH_TEST_SIZE,
+     num_sample_train, num_sample_test)\
         =fg.get_meta()
     emb_matrix=ntp.get_glove_emb_100(GLOVE_DIR,word_index,MAX_NB_WORDS)
     emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.10.ha2.beta')
@@ -77,13 +79,13 @@ def build_model(model_name='ha_lstm', conti=True):
 
         embedding_layer = Embedding(emb_matrix.shape[0],
                                     emb_matrix.shape[1],
-                                    weights=None,
+                                    weights=[emb_matrix],
                                     input_length=MAX_SENT_LENGTH,
                                     trainable=True)
 
         embedding_layer2 = Embedding(emb_matrix2.shape[0],
                                      emb_matrix2.shape[1],
-                                    weights=None,
+                                    weights=[emb_matrix2],
                                     input_length=MAX_SENT_LENGTH,
                                     trainable=True)
 
@@ -95,13 +97,28 @@ def build_model(model_name='ha_lstm', conti=True):
 
         mv_vector = merge([embedded_sequences2, embedded_sequences], mode='concat')
 
-        conv = Convolution1D(nb_filter=128,
+        conv = Convolution1D(nb_filter=100,
                              filter_length=11,
                              border_mode='same',
                              activation='relu')(embedded_sequences2)
 
         mp = MaxPooling1D(pool_length=conv._keras_shape[1])(conv)
         mp = Flatten()(Dropout(0.1)(mp))
+
+        filter_sizes = [3, 7, 11]
+        pool_size = [1, 3, 5]
+        convs = []
+        for ind, fsz in enumerate(filter_sizes):
+            l_conv = Conv1D(nb_filter=100, filter_length=fsz, activation='relu')(embedded_sequences2)
+            l_pool = MaxPooling1D(l_conv._keras_shape[1])(l_conv)
+            convs.append(l_pool)
+
+        l_merge = Merge(mode='concat', concat_axis=1)(convs)
+
+        # mp = MaxPooling1D(l_merge._keras_shape[1])(l_merge)  # [n_samples, n_steps, rnn_dim]
+        #
+        # mp = Flatten()(Dropout(0.1)(mp))
+
         #l_lstm2 = Bidirectional(LSTM(LSTM_DIM, return_sequences=False))(mp)
 
         # mv_vector = merge([conv, embedded_sequences], mode='concat')
@@ -168,10 +185,10 @@ def build_model(model_name='ha_lstm', conti=True):
                                        verbose=1,
                                        save_best_only=True)
     history = model.fit_generator(fg.train_generator(),
-                                  samples_per_epoch=BATCH_TRAIN_SIZE * 100,
+                                  samples_per_epoch=num_sample_train//BATCH_TRAIN_SIZE+1,
                                   nb_epoch=100,
                                   validation_data=fg.valid_generator(),
-                                  nb_val_samples=BATCH_TEST_SIZE * 100,
+                                  nb_val_samples=num_sample_test//BATCH_TEST_SIZE+1,
                                   callbacks=[checkpointer], class_weight=None)
 
 def evaluate_model(model_name):

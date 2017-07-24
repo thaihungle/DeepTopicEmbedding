@@ -13,6 +13,7 @@ from keras.utils.np_utils import to_categorical
 import pandas as pd
 import nltk
 from nltk.stem.porter import PorterStemmer
+import data_getter as dg
 
 pattern = re.compile(r'\b(' + r'|'.join(nltk.corpus.stopwords.words('english')) + r')\b\s*')
 keep_pattern = re.compile('([\W])')
@@ -271,7 +272,7 @@ def preprocess_raw_text_ha_chop(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH,
 
 def preprocess_raw_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH,
                            train_dir='./data/labeledTrainData.tsv',
-                           test_dir='./data/testData.tsv'):
+                           test_dir='./data/testData.tsv', is_tf=False):
 
 
 
@@ -290,7 +291,7 @@ def preprocess_raw_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH,
     for idx in range(data_train.review.shape[0]):
         text = BeautifulSoup(data_train.review[idx],"html.parser")
         text = clean_str(text.get_text())
-        text = pattern.sub('', text)
+        # text = pattern.sub('', text)
         # sentences = tokenize.sent_tokenize(text)
         tokens = re.split(keep_pattern, text)
         # stemmed_tokens = [p_stemmer.stem(i)  for i in tokens if i is not ' ' and i is not '']
@@ -308,6 +309,8 @@ def preprocess_raw_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH,
 
     print('number of docs: {}'.format(len(reviews)))
     print('number of labels: {}'.format(len(labels)))
+
+    text_full=texts
 
     tokenizer = Tokenizer(num_words=MAX_NB_WORDS, filters='')
     tokenizer.fit_on_texts(texts)
@@ -351,7 +354,7 @@ def preprocess_raw_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH,
     print(min(list_num_word))
     print(max(list_num_word))
     print(sum(list_num_word) / (1.0 * len(list_num_word)))
-
+    y_train=labels
     labels = to_categorical(np.asarray(labels))
     print('Shape of data tensor:', data.shape)
     print('Shape of label tensor:', labels.shape)
@@ -367,7 +370,7 @@ def preprocess_raw_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH,
     for idx in range(data_test.review.shape[0]):
         text = BeautifulSoup(data_test.review[idx], "html.parser")
         text = clean_str(text.get_text())
-        text = pattern.sub('', text)
+        # text = pattern.sub('', text)
         # texts.append(text)
         # sentences = tokenize.sent_tokenize(text)
         tokens = re.split(keep_pattern, text)
@@ -389,6 +392,8 @@ def preprocess_raw_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH,
 
     print(reviews[0][:10])
     print(reviews[1][:10])
+
+    text_full+=texts
 
     print('number of docs: {}'.format(len(reviews)))
     print('number of labels: {}'.format(len(labels)))
@@ -430,10 +435,26 @@ def preprocess_raw_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH,
     print(min(list_num_word))
     print(max(list_num_word))
     print(sum(list_num_word) / (1.0 * len(list_num_word)))
-
+    y_test=labels
     labels = to_categorical(np.asarray(labels))
     print('Shape of data tensor:', data.shape)
     print('Shape of label tensor:', labels.shape)
+
+
+    if is_tf:
+        tokenizer_full = Tokenizer(filters='')
+        tokenizer_full.fit_on_texts(text_full)
+        X_train=tokenizer_full.texts_to_sequences(text_full[:25000])
+        X_test=tokenizer_full.texts_to_sequences(text_full[25000:])
+        gen_imdb_tf_from_obj(X_train,y_train,X_test,y_test,
+                             './data/count_data/imdb_raw_train_full.dat',
+                             './data/count_data/imdb_raw_test_full.dat')
+
+        word_index=od(sorted(tokenizer_full.word_index.items(),key=operator.itemgetter(1)))
+        with open('./data/count_data/imdb_raw_full.tok','w') as f:
+            for k,v in word_index.items():
+                f.write(k)
+                f.write('\n')
 
 
     data_test = data
@@ -465,20 +486,26 @@ def preprocess_rawbig_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH):
     print(X[:10])
     print(y[:10])
 
-    num_sam = X.shape[0]
+    num_sam = len(X)
     num_train = int(num_sam * 0.9)
     index_shuf = list(range(num_sam))
     print(index_shuf[:10])
     random.shuffle(index_shuf)
     print(index_shuf[:10])
     print(len(index_shuf))
-    X_train = X[index_shuf]
-    y_train = X[index_shuf]
+    X_train=[]
+    y_train=[]
+    for i in index_shuf:
+        X_train.append(X[i])
+        y_train.append(y[i])
 
     X_test = X_train[num_train:]
     X_train = X_train[:num_train]
     y_test = y_train[num_train:]
     y_train = y_train[:num_train]
+
+
+
     from nltk import tokenize
 
     reviews = []
@@ -489,7 +516,7 @@ def preprocess_rawbig_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH):
     for idx in range(len(X_train)):
         text = BeautifulSoup(X_train[idx], "html.parser")
         text = clean_str(text.get_text())
-        text = pattern.sub('', text)
+        # text = pattern.sub('', text)
         # sentences = tokenize.sent_tokenize(text)
         tokens = re.split(keep_pattern, text)
         # stemmed_tokens = [p_stemmer.stem(i)  for i in tokens if i is not ' ' and i is not '']
@@ -566,7 +593,7 @@ def preprocess_rawbig_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH):
     for idx in range(len(X_test)):
         text = BeautifulSoup(X_test[idx], "html.parser")
         text = clean_str(text.get_text())
-        text = pattern.sub('', text)
+        # text = pattern.sub('', text)
         # texts.append(text)
         # sentences = tokenize.sent_tokenize(text)
         tokens = re.split(keep_pattern, text)
@@ -579,7 +606,7 @@ def preprocess_rawbig_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH):
         if idx % 1000 == 0:
             print('done {}'.format(idx))
 
-            labels.append(y_test[idx])
+        labels.append(y_test[idx])
 
     print(reviews[0][:10])
     print(reviews[1][:10])
@@ -637,10 +664,9 @@ def preprocess_rawbig_imdb_ha(MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH):
     print(labels_test.shape)
 
     print('start dump....')
-    pickle.dump(((data_train, labels_train),
-                 (data_test, labels_test),
-                 word2ind, (MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH)),
-                open('./data/big_imdb_prep_ha50200.pkl', 'wb'))
+    dg.split_data(data_train, labels_train,data_test, labels_test,
+                  word2ind,MAX_NB_WORDS,MAX_SENTS,MAX_SENT_LENGTH,
+                  './data/big_imdb_prep_ha50200.pkl',50,50)
     print('done!!!')
 
 
@@ -651,7 +677,7 @@ def preppare_word2vec():
 
 def get_glove_emb_100(GLOVE_DIR, word_index, MAX_NB_WORDS):
     embeddings_index = {}
-    f = open(os.path.join(GLOVE_DIR, 'glove.6B.200d.txt'))
+    f = open(os.path.join(GLOVE_DIR, 'glove.6B.100d.txt'))
     for line in f:
         values = line.split()
         word = values[0]
@@ -662,7 +688,7 @@ def get_glove_emb_100(GLOVE_DIR, word_index, MAX_NB_WORDS):
     print('Total %s word vectors.' % len(embeddings_index))
 
     num_embable=0
-    embedding_matrix = np.random.random((MAX_NB_WORDS, 200))
+    embedding_matrix = np.random.random((MAX_NB_WORDS, 100))
     for word, i in word_index.items():
         embedding_vector = embeddings_index.get(word)
         if embedding_vector is not None:
@@ -689,10 +715,51 @@ def get_topic_emb(beta_file):
     num_word=beta_mat.shape[0]
     num_dim=beta_mat.shape[1]
     print('num word {} vs num dim {}'.format(num_word, num_dim))
-    embedding_weights = np.zeros((num_word+1,num_dim))
+    embedding_weights = np.random.random((num_word+1,num_dim))
     embedding_weights[1:,:]=beta_mat
     return embedding_weights
 
+def get_topic_emb2(beta_file, word2ind, MAX_NB_WORDS, wordind_file):
+    word_index={}
+    index_word={}
+    with open(wordind_file) as f:
+        ind=0
+        for l in f:
+            index_word[ind]=str(l.strip())
+            word_index[index_word[ind]]=ind
+            ind+=1
+
+    beta_mat = []
+    print('load beta file...')
+    with open(beta_file) as f:
+        for line in f:
+            row=[]
+            for num in re.compile(r"\s+").split(line.strip()):
+                row.append(float(num))
+            beta_mat.append(row)
+
+    beta_mat = np.asarray(beta_mat, dtype='float32')
+    beta_mat = np.transpose(beta_mat)
+    print('beta info:')
+    num_word = beta_mat.shape[0]
+    num_dim = beta_mat.shape[1]
+    print('num words beta {}'.format(num_word))
+    print('num words ha {}'.format(len(word2ind)))
+    print('num dims {}'.format(num_dim))
+
+    embedding_weights = np.random.random((MAX_NB_WORDS,num_dim))
+    num_embable=0
+    for word, i in word2ind.items():
+        embedding_vector=None
+        if word_index.get(word) and word_index[word]<num_word:
+            embedding_vector = beta_mat[word_index[word]]
+        if embedding_vector is not None:
+            # words not found in embedding index will be all-zeros.
+            embedding_weights[i] = embedding_vector
+            num_embable+=1
+    print('Total {} embbed words/ {} total words.'.format(num_embable, len(word_index)))
+
+    return embedding_weights
 
 def get_full_imdb():
     path = imdb.get_file('imdb_full.pkl',
@@ -828,14 +895,11 @@ def flatten_ha_data(X):
     return fX
 
 
-def gen_imdb_tf_raw_norm(train_filename, test_filename, inputfn):
-    print('start read...')
+def gen_imdb_tf_from_obj(X_train, y_train, X_test, y_test,
+                         train_filename, test_filename):
 
-    ((X_train, y_train),
-     (X_test, y_test),
-     word_index,
-     (MAX_NB_WORDS, MAX_SENT_LENGTH)) \
-        = pickle.load(open(inputfn, 'rb'))
+    train_fn_word=train_filename+'.tok'
+    test_fn_word = test_filename + '.tok'
 
     print('done load')
     print('start flatten..')
@@ -843,12 +907,13 @@ def gen_imdb_tf_raw_norm(train_filename, test_filename, inputfn):
     print(y_train[:10])
     print(y_test[:10])
 
-    y_train = np.argmax(y_train, 1)
-    y_test = np.argmax(y_test, 1)
+    if not isinstance(y_train,list):
+        y_train = np.argmax(y_train, 1)
+    if not isinstance(y_test, list):
+        y_test = np.argmax(y_test, 1)
 
     print(y_train[:10])
     print(y_test[:10])
-
 
     print(X_train[0])
     print(X_train[1])
@@ -921,6 +986,22 @@ def gen_imdb_tf_raw_norm(train_filename, test_filename, inputfn):
             f.write('\n')
             c += 1
     print('done write test data...')
+
+def gen_imdb_tf_raw_norm(train_filename, test_filename, inputfn):
+    print('start read...')
+
+    ((X_train, y_train),
+     (X_test, y_test),
+     word_index,
+     (MAX_NB_WORDS, MAX_SENT_LENGTH)) \
+        = pickle.load(open(inputfn, 'rb'))
+
+    gen_imdb_tf_from_obj(X_train, y_train, X_test, y_test,
+                         train_filename, test_filename)
+
+
+
+
 
 def gen_imdb_tf_raw_ha(train_filename, test_filename, inputfn):
 
@@ -1091,8 +1172,8 @@ def gen_imdb_tf(train_filename, test_filename, top_words):
 
 
 if __name__ == '__main__':
-    # gen_imdb_tf_raw_ha('./data/count_data/imdb_raw_train2.dat',
-    #             './data/count_data/imdb_raw_test2.dat','./data/imdb_prep_stem.pkl')
+    # gen_imdb_tf_raw_ha('./data/count_data/imdb_raw_train3.dat',
+    #              './data/count_data/imdb_raw_test3.dat','./data/imdb_prep_stem.pkl')
 
     #gen_imdb_tf_raw_norm('./data/count_data/imdb_raw_train1.dat',
     #            './data/count_data/imdb_raw_test1.dat','./data/imdb_prep_context.pkl')
@@ -1102,9 +1183,9 @@ if __name__ == '__main__':
     #get_topic_emb('./data/count_data/fstm.beta')
     # get_full_imdb()
 
-    # preprocess_raw_imdb_ha(MAX_NB_WORDS=30000,
-    #                         MAX_SENT_LENGTH=200,
-    #                         MAX_SENTS=50)
+    preprocess_raw_imdb_ha(MAX_NB_WORDS=30000,
+                            MAX_SENT_LENGTH=200,
+                            MAX_SENTS=50, is_tf=True)
 
    # preprocess_raw_text_ha_chop(MAX_NB_WORDS=50000,
    #                      MAX_SENT_LENGTH=50,
@@ -1115,6 +1196,6 @@ if __name__ == '__main__':
     #                        MAX_SENT_LENGTH=1000)
 
 
-    preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
-                             MAX_SENT_LENGTH=200,
-                             MAX_SENTS=50)
+    # preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
+    #                          MAX_SENT_LENGTH=200,
+    #                          MAX_SENTS=50)

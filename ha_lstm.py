@@ -41,7 +41,7 @@ MAX_SENT_LENGTH = 500
 MAX_SENTS = 128
 EMBEDDING_DIM = 150
 VALIDATION_SPLIT = 0.2
-LSTM_DIM = 150
+LSTM_DIM = 100
 SMALL_SENTS = 1
 MAX_NB_WORDS=30000
 
@@ -66,7 +66,10 @@ def build_model(model_name='ha_lstm', conti=True):
 
     emb_matrix=ntp.get_glove_emb_100(GLOVE_DIR,word_index,MAX_NB_WORDS)
     emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.10.ha2.beta')
-    #emb_matrix=emb_matrix2
+    # emb_matrix2=ntp.get_topic_emb2('./embfiles/fstm.30000.40.hafull.beta',
+    #                                word_index,MAX_NB_WORDS,
+    #                                './data/count_data/imdb_raw_full.tok')
+    # emb_matrix=emb_matrix2
     # emb_matrix3 = ntp.get_topic_emb('./embfiles/fstm.30000.0.ha.beta')
 
     print('start build model')
@@ -105,11 +108,12 @@ def build_model(model_name='ha_lstm', conti=True):
                              activation='relu')(embedded_sequences2)
 
         mp = MaxPooling1D(pool_length=conv._keras_shape[1])(conv)
-        mp = Flatten()(Dropout(0.05)(mp))
+        mp = Flatten()(Dropout(0.1)(mp))
 
         filter_sizes = [3, 7, 11]
+        pool_size = [1, 3, 5]
         convs = []
-        for fsz in filter_sizes:
+        for ind, fsz in enumerate(filter_sizes):
             l_conv = Conv1D(nb_filter=100, filter_length=fsz, activation='relu')(embedded_sequences2)
             l_pool = MaxPooling1D(l_conv._keras_shape[1])(l_conv)
             convs.append(l_pool)
@@ -117,9 +121,9 @@ def build_model(model_name='ha_lstm', conti=True):
         l_merge = Merge(mode='concat', concat_axis=1)(convs)
 
 
-        mp = MaxPooling1D(l_merge._keras_shape[1])(l_merge)  # [n_samples, n_steps, rnn_dim]
-
-        mp = Flatten()(mp)
+        # mp = MaxPooling1D(l_merge._keras_shape[1])(l_merge)  # [n_samples, n_steps, rnn_dim]
+        #
+        # mp = Flatten()(Dropout(0.1)(mp))
 
         #l_lstm2 = Bidirectional(LSTM(LSTM_DIM, return_sequences=False))(mp)
 
@@ -140,8 +144,8 @@ def build_model(model_name='ha_lstm', conti=True):
         att = Reshape((1, att._keras_shape[1]))(att)
         lstm = merge([att, l_lstm], mode='dot', dot_axes=(2, 1))  # [n_samples, rnn_dim]
         lstm = Flatten()(lstm)
-        #lstm = merge([lstm, mp], mode='concat')
-        sentEncoder = Model(sentence_input, mp)
+        lstm = merge([lstm, mp], mode='concat')
+        sentEncoder = Model(sentence_input, lstm)
 
         # sentEncoder = Model(sentence_input, l_lstm)
 
