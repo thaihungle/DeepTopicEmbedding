@@ -1007,7 +1007,7 @@ def gen_imdb_tf_form_batch(train_filename, test_filename, input_dir):
     print('start get obj train')
     for i,fn in enumerate(all_files):
         (Xs, ys) = pickle.load(open(fn, 'rb'))
-        if not X_train:
+        if X_train is not None:
             X_train=Xs
             y_train=ys
         else:
@@ -1022,7 +1022,7 @@ def gen_imdb_tf_form_batch(train_filename, test_filename, input_dir):
     print('start get obj test')
     for i, fn in enumerate(all_files):
         (Xs, ys) = pickle.load(open(fn, 'rb'))
-        if not X_test:
+        if X_test is not None:
             X_test = Xs
             y_test = ys
         else:
