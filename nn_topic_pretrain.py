@@ -1216,9 +1216,9 @@ if __name__ == '__main__':
     #get_topic_emb('./data/count_data/fstm.beta')
     # get_full_imdb()
 
-    preprocess_raw_imdb_ha(MAX_NB_WORDS=30000,
-                            MAX_SENT_LENGTH=200,
-                            MAX_SENTS=50, is_tf=True)
+    #preprocess_raw_imdb_ha(MAX_NB_WORDS=30000,
+    #                        MAX_SENT_LENGTH=200,
+    #                        MAX_SENTS=50, is_tf=True)
 
    # preprocess_raw_text_ha_chop(MAX_NB_WORDS=50000,
    #                      MAX_SENT_LENGTH=50,
@@ -1229,6 +1229,6 @@ if __name__ == '__main__':
     #                        MAX_SENT_LENGTH=1000)
 
 
-    # preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
-    #                          MAX_SENT_LENGTH=200,
-    #                          MAX_SENTS=50)
+    preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
+                              MAX_SENT_LENGTH=200,
+                              MAX_SENTS=20)
