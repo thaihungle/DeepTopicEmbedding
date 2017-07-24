@@ -1229,6 +1229,10 @@ if __name__ == '__main__':
     #                        MAX_SENT_LENGTH=1000)
 
 
-    preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
-                              MAX_SENT_LENGTH=200,
-                              MAX_SENTS=20)
+    # preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
+    #                           MAX_SENT_LENGTH=200,
+    #                           MAX_SENTS=20)
+
+    gen_imdb_tf_form_batch('./data/big_imdb_count_data/big_imdb_raw_train.data',
+                           './data/big_imdb_count_data/big_imdb_raw_test.data',
+                           './data/big_imdb_prep_ha50200/')
