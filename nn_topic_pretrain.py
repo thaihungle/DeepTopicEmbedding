@@ -1011,8 +1011,8 @@ def gen_imdb_tf_form_batch(train_filename, test_filename, input_dir):
             X_train=Xs
             y_train=ys
         else:
-            X_train=np.vstack((X_train,Xs))
-            y_train = np.vstack((y_train, ys))
+            X_train=np.concatenate((X_train,Xs), axis=0)
+            y_train = np.concatenate((y_train, ys), axis=0)
         if i%1000==0:
             print('done {}'.format(i))
 
@@ -1026,8 +1026,8 @@ def gen_imdb_tf_form_batch(train_filename, test_filename, input_dir):
             X_test = Xs
             y_test = ys
         else:
-            X_test = np.vstack((X_test, Xs))
-            y_test = np.vstack((y_test, ys))
+            X_test = np.concatenate((X_test,Xs), axis=0)
+            y_test = np.concatenate((y_test,Xs), axis=0)
         if i%1000==0:
             print('done {}'.format(i))
 
