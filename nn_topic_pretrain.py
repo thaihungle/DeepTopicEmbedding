@@ -1,3 +1,4 @@
+
 import os
 import sys
 import numpy as np
@@ -688,7 +689,7 @@ def get_glove_emb_100(GLOVE_DIR, word_index, MAX_NB_WORDS):
     print('Total %s word vectors.' % len(embeddings_index))
 
     num_embable=0
-    embedding_matrix = np.random.random((MAX_NB_WORDS, 100))
+    embedding_matrix = np.random.uniform(-0.25,0.25,(MAX_NB_WORDS, 100))
     for word, i in word_index.items():
         embedding_vector = embeddings_index.get(word)
         if embedding_vector is not None:
@@ -716,7 +717,7 @@ def get_topic_emb(beta_file):
     num_dim=beta_mat.shape[1]
     print('num word {} vs num dim {}'.format(num_word, num_dim))
     embedding_weights = np.random.random((num_word+1,num_dim))
-    embedding_weights[1:,:]=beta_mat
+    embedding_weights[1:,:]=beta_mat #-np.mean(beta_mat, 0)
     return embedding_weights
 
 def get_topic_emb2(beta_file, word2ind, MAX_NB_WORDS, wordind_file):
@@ -933,6 +934,8 @@ def gen_imdb_tf_from_obj(X_train, y_train, X_test, y_test,
     for i in range(n_train):
         local_count = {}
         words = X_train[i]
+        if len(words.shape)>1:
+            words=words.flatten()
         for w in words:
             if w != 0:
                 if not local_count.get(w):
@@ -961,6 +964,8 @@ def gen_imdb_tf_from_obj(X_train, y_train, X_test, y_test,
     for i in range(n_test):
         local_count = {}
         words = X_test[i]
+        if len(words.shape)>1:
+            words=words.flatten()
         for w in words:
             # print(w)
             if w != 0:
@@ -1013,8 +1018,9 @@ def gen_imdb_tf_form_batch(train_filename, test_filename, input_dir):
         else:
             X_train=np.concatenate((X_train,Xs), axis=0)
             y_train = np.concatenate((y_train, ys), axis=0)
-        if i%100==0:
+        if i%100==10:
             print('done {}'.format(i))
+            # break
 
     all_files = glob.glob(input_dir + '/test/*.pkl')
     X_test = None
@@ -1027,9 +1033,10 @@ def gen_imdb_tf_form_batch(train_filename, test_filename, input_dir):
             y_test = ys
         else:
             X_test = np.concatenate((X_test,Xs), axis=0)
-            y_test = np.concatenate((y_test,Xs), axis=0)
-        if i%100==0:
+            y_test = np.concatenate((y_test,ys), axis=0)
+        if i%100==10:
             print('done {}'.format(i))
+            # break
 
     gen_imdb_tf_from_obj(X_train, y_train, X_test, y_test, train_filename, test_filename)
 
@@ -1229,10 +1236,10 @@ if __name__ == '__main__':
     #                        MAX_SENT_LENGTH=1000)
 
 
-    preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
-                               MAX_SENT_LENGTH=200,
-                               MAX_SENTS=50)
+    #preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
+    #                           MAX_SENT_LENGTH=200,
+    #                           MAX_SENTS=50)
 
-    # gen_imdb_tf_form_batch('./data/big_imdb_count_data/big_imdb_raw_train.data',
-    #                        './data/big_imdb_count_data/big_imdb_raw_test.data',
-    #                        './data/big_imdb_prep_ha50200/')
+    gen_imdb_tf_form_batch('./data/big_imdb_count_data/big_imdb_raw_train.data',
+                            './data/big_imdb_count_data/big_imdb_raw_test.data',
+                            './data/big_imdb_prep_ha50200/')

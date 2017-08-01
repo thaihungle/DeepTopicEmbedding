@@ -41,7 +41,7 @@ MAX_SENT_LENGTH = 500
 MAX_SENTS = 128
 EMBEDDING_DIM = 150
 VALIDATION_SPLIT = 0.2
-LSTM_DIM = 100
+LSTM_DIM = 128
 SMALL_SENTS = 1
 MAX_NB_WORDS=30000
 
@@ -70,7 +70,7 @@ def build_model(model_name='ha_lstm', conti=True):
     #                                word_index,MAX_NB_WORDS,
     #                                './data/count_data/imdb_raw_full.tok')
     # emb_matrix=emb_matrix2
-    # emb_matrix3 = ntp.get_topic_emb('./embfiles/fstm.30000.0.ha.beta')
+    #emb_matrix3 = ntp.get_topic_emb('./embfiles/fstm.30000.0.ha.beta')
 
     print('start build model')
 
@@ -94,7 +94,13 @@ def build_model(model_name='ha_lstm', conti=True):
                                     input_length=MAX_SENT_LENGTH,
                                     trainable=True)
 
+        #embedding_layer3 = Embedding(emb_matrix3.shape[0],
+        #                             emb_matrix3.shape[1],
+        #                             weights=[emb_matrix3],
+        #                             input_length=MAX_SENT_LENGTH,
+        #                             trainable=True)
 
+        #embedded_sequences3 = embedding_layer3(sentence_input)
 
         embedded_sequences2 = embedding_layer2(sentence_input)
 
@@ -103,7 +109,7 @@ def build_model(model_name='ha_lstm', conti=True):
         mv_vector = merge([embedded_sequences2, embedded_sequences], mode='concat')
 
         conv = Convolution1D(nb_filter=100,
-                             filter_length=11,
+                             filter_length=9,
                              border_mode='same',
                              activation='relu')(embedded_sequences2)
 
@@ -121,9 +127,9 @@ def build_model(model_name='ha_lstm', conti=True):
         l_merge = Merge(mode='concat', concat_axis=1)(convs)
 
 
-        # mp = MaxPooling1D(l_merge._keras_shape[1])(l_merge)  # [n_samples, n_steps, rnn_dim]
-        #
-        # mp = Flatten()(Dropout(0.1)(mp))
+        #mp = MaxPooling1D(l_merge._keras_shape[1])(l_merge)  # [n_samples, n_steps, rnn_dim]
+
+        #mp = Flatten()(Dropout(0.1)(mp))
 
         #l_lstm2 = Bidirectional(LSTM(LSTM_DIM, return_sequences=False))(mp)
 
@@ -180,7 +186,7 @@ def build_model(model_name='ha_lstm', conti=True):
 
 
     model.compile(loss='categorical_crossentropy',
-                  optimizer= opt.RMSprop(decay=0.01),
+                  optimizer= opt.RMSprop(),
                   metrics=['acc'])
 
     print(model.summary())
