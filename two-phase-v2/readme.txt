@@ -51,3 +51,9 @@ Various files will be produced. Some impotant files contain:
 
 - Accuracy of classification by SVM with linear kernel
   saved in files "Accuracy-*.dat"
+
+*********************************************
+NEW API TO USE OPE
+*********************************************
+Standing at the two-phase-v2 directory:
+python sdr_ope.py fstm 40 data/data_imdb/imdb_raw_train_full.dat data/data_imdb/imdb_raw_test_full.dat imdb ./OPE-master/settings.txt ML-FW 0
