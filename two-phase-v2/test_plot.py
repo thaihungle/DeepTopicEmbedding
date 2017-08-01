@@ -1,0 +1,97 @@
+import pylab
+import numpy
+import sys
+
+def plot_by_train_iter():
+  data0=pylab.loadtxt('./test_results/time_base.txt')
+  data1=pylab.loadtxt('./test_results/time_ML-FW.txt')
+  data2=pylab.loadtxt('./test_results/time_ML-OPE.txt')
+  data3=pylab.loadtxt('./test_results/time_Online-FW.txt')
+  data4=pylab.loadtxt('./test_results/time_Online-OPE.txt')
+  x=range(1,11)
+  data0=numpy.array([data0,]*10)
+  pylab.subplot(121)
+  pylab.xlabel('iter_train')
+  pylab.ylabel('time (seconds)')
+  pylab.plot(x,data0[:,0])
+  pylab.plot(x,data1[:,0])
+  pylab.plot(x,data2[:,0])
+  pylab.plot(x,data3[:,0])
+  pylab.plot(x,data4[:,0])
+  pylab.legend(['baseline','ML-FW','ML-OPE','Online-FW','Online-OPE'])
+  pylab.subplot(122)
+  pylab.xlabel('iter_train')
+  pylab.ylabel('accuracy (%)')
+  pylab.plot(x,data0[:,1])
+  pylab.plot(x,data1[:,1])
+  pylab.plot(x,data2[:,1])
+  pylab.plot(x,data3[:,1])
+  pylab.plot(x,data4[:,1])
+  pylab.legend(['baseline','ML-FW','ML-OPE','Online-FW','Online-OPE'])
+  pylab.tight_layout()
+  pylab.show()
+  
+def plot_by_param(param):
+  data0=pylab.loadtxt('./test_results/time_base.txt')
+  data1=pylab.loadtxt('./test_results/acc_%s_ML-FW.txt' % (param))
+  data2=pylab.loadtxt('./test_results/acc_%s_ML-OPE.txt' % (param))
+  data3=pylab.loadtxt('./test_results/acc_%s_Online-FW.txt' % (param))
+  data4=pylab.loadtxt('./test_results/acc_%s_Online-OPE.txt' % (param))
+  data0=numpy.array([data0,]*10)
+  x=data1[:,0]
+  pylab.xlabel(param)
+  pylab.ylabel('accuracy (%)')
+  pylab.plot(x,data0[:len(data1[:,1]),1])
+  pylab.plot(x,data1[:,1])
+  pylab.plot(x,data2[:,1])
+  pylab.plot(x,data3[:,1])
+  pylab.plot(x,data4[:,1])
+  pylab.legend(['baseline','ML-FW','ML-OPE','Online-FW','Online-OPE'])
+  pylab.tight_layout()
+  pylab.show()
+  
+def plot_by_params():
+  params=['alpha', 'eta','tau0', 'kappa', 'num_topics']
+  splot=[231,232,233,234,235]
+  for param,sp in zip(params,splot):
+    pylab.subplot(sp)
+    data0=pylab.loadtxt('./test_results/time_base.txt')
+    data1=pylab.loadtxt('./test_results/acc_%s_ML-FW.txt' % (param))
+    data2=pylab.loadtxt('./test_results/acc_%s_ML-OPE.txt' % (param))
+    data3=pylab.loadtxt('./test_results/acc_%s_Online-FW.txt' % (param))
+    data4=pylab.loadtxt('./test_results/acc_%s_Online-OPE.txt' % (param))
+    data0=numpy.array([data0,]*10)
+    x=data1[:,0]
+    pylab.xlabel(param)
+    pylab.ylabel('accuracy (%)')
+    pylab.plot(x,data0[:len(data1[:,1]),1])
+    pylab.plot(x,data1[:,1])
+    pylab.plot(x,data2[:,1])
+    pylab.plot(x,data3[:,1])
+    pylab.plot(x,data4[:,1])
+    pylab.legend(['baseline','ML-FW','ML-OPE','Online-FW','Online-OPE'])
+    
+  data0=pylab.loadtxt('./test_results/time_base.txt')
+  data1=pylab.loadtxt('./test_results/time_ML-FW.txt')
+  data2=pylab.loadtxt('./test_results/time_ML-OPE.txt')
+  data3=pylab.loadtxt('./test_results/time_Online-FW.txt')
+  data4=pylab.loadtxt('./test_results/time_Online-OPE.txt')
+  data0=numpy.array([data0,]*10)
+  x=range(1,11)
+  pylab.subplot(236)
+  pylab.xlabel('iter_train')
+  pylab.ylabel('accuracy (%)')
+  pylab.plot(x,data0[:,1])
+  pylab.plot(x,data1[:,1])
+  pylab.plot(x,data2[:,1])
+  pylab.plot(x,data3[:,1])
+  pylab.plot(x,data4[:,1])
+  pylab.legend(['baseline','ML-FW','ML-OPE','Online-FW','Online-OPE'])
+  pylab.tight_layout()
+  pylab.show()
+  
+if (__name__ == '__main__'):
+  #plot_by_train_iter()
+  #plot_by_params()
+  param = sys.argv[1]
+  plot_by_param(param)

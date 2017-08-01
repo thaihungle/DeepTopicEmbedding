@@ -1,0 +1,6 @@
+em max iter: 100
+em convergence: 1e-4
+infer max iter: 1000
+infer convergence: 1e-6
+topic sparsity: 1
+data type: 2

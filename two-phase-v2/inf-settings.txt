@@ -1,0 +1,11 @@
+============INFERENCE===================
+100	Maximum iterations for inference of each document 
+1e-6 	Convergence criterion for inference
+============DATA===================
+2 	Data type: 1 is unsupervised; 2 is supervised;
+1 	Prior: 0 means no use of prior; 1 means discriminative topics for a class will be favored; 
+1000	Regularization constant
+============NEAREST=NEIGHBORS===================
+40	K-NN: number of neighbors for a document to be used
+0.1	Lambda: constant that a combine document with its neighbors
+===============================

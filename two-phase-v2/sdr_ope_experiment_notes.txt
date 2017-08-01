@@ -1,0 +1,6 @@
+sdr ope comments==========================
+1)Phase 1's role in two phase framework?
+- with Phase 2 even use random L1 normalized beta works--> the accuracy drops little (down 1-2% to 83-84%) 
+- without Phase 2 use random L1 normalized beta fails--> the accuracy is only 6%
+2)Using Phase 1 as OPE make it faster, scalble and maybe higher accuracy. 
+However, it is less stable. The accuracy rate fluctuates a little bit

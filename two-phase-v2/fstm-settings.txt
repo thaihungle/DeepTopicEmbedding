@@ -1,0 +1,7 @@
+50	Maximum iterations for the EM algorithm
+1e-4	Convergence criterion for the EM algorithm
+100	Maximum iterations for inference of each document 
+1e-6 	Convergence criterion for inference
+0.1 	Initial topic sparsity 
+2 	Data type: 1 is unsupervised; 2 is supervised;
+1 	Learning with warm-start or not. 1 means that warm-start is used. 

@@ -1,0 +1,81 @@
+An effective framework for supervised dimension reduction with topic models
+********************************************
+Version: April 2013
+
+********************************************
+Consider topics models to be dimension reduction approaches. Label information and local 
+structure are used further to guide finding of latent space (topical space). 
+	- Nearest neighbors are used when inferring latent representation of a document.
+	- The Frank-Wolfe algorithm is used to do inference/projection.
+
+********************************************
+Other: support reading of data in either LIBSVM or LDA format.
+
+********************************************
+Running this package consists of 5 steps:
+	- Set an appropriate setting for topic models and the inference method by FW
+	- Learn a topic model
+	- Find nearest neighbors for the trainning data.
+	- Infer new topical space by encoding label information and local structure.
+	- Infer new latent representation of both training and testing data.
+
+********************************************
+1. SET an appropriate setting
+********************************************
+Modify the file "inf-setting.txt"
+
+
+********************************************
+2. LEARN a topic model
+********************************************
+- Type 'Make' to compile the package
+- Use the following command to learn a topic model:
+	<model>-run est <model-folder> <training-data> <topics>
+
+<model>:		lda /plsa /fstm
+<model-folder>:	folder to save the learned model
+<training-data>:	name of the training data
+<topics>:		number of topics
+
+ex: 	./fstm-run est news data/news20.dat 40
+
+********************************************
+3. FIND nearest neighbors
+********************************************
+	./knn <training-data> <neighbors-data> <kNN> <data-type>
+
+<neighbors-data>:	name of the file to save the found nearest neighbors.
+<kNN>:		number of neighbors for a document.
+<data-type>	type of data (1 for unsupervised; 2 for multiclass)
+
+ex: 	./knn data/news20.dat data/k20-news20.dat 20 2
+
+********************************************
+4. INFER new topical space
+********************************************
+	./infer <model> <infer-method> <model-folder> <training-data> <neighbors-data> <topics>
+
+<infer-method>:	name of the inference method, using label information and local structure
+
+ex: 	./infer fstm sin news data/news20.dat data/k20-news20.dat 40
+
+********************************************
+5. INFER new representation of documents
+********************************************
+	<model>-run inf-<phase> <infer-method> <model-folder> <data> <topics>
+
+<phase>:		test / train	(infer on training or testing data)
+<infer-method>:	name of the inference method, adding the regularization constant
+<model-folder>:	the folder that the learned model is saved.
+<data>:		name of data to be inferred
+
+ex: 	./fstm-run inf-train sin1000-k20-ld0.10 news data/news20.dat 40
+	./fstm-run inf-test sin1000-k20-ld0.10 news data/news20.t 40
+	./fstm-run inf-test fstm news data/news20.t 40
+
+The new representations are saved in where the model is stored. 
+Try those reduced representations to do classification or other tasks as needed.
+
+
+********************************************
+OTHER: 
