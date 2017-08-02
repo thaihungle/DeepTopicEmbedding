@@ -1,8 +1,12 @@
 ------Test big imdb data-------
 ////////Step0////////
-install all python libs and build SDR if necessary
-Step1:
+install all python3 libs and build SDR if necessary
+it is better to setup virtual environment
+****command sysntax****
+pip install -r requirements.txt
+////////Step1////////
 Download big imdb data
+http://www.mediafire.com/file/pdzciu93zspaad1/data.json
 ///////Step2////////
 Create hierarchical data
 ****command sysntax****

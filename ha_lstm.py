@@ -65,7 +65,7 @@ def build_model(model_name='ha_lstm', conti=True):
         =	pickle.load(open('./data/imdb_prep_stem.pkl', 'rb'))
 
     #emb_matrix=ntp.get_glove_emb_100(GLOVE_DIR,word_index,MAX_NB_WORDS)
-    emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.30.ha2.beta')
+    emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.60.ha2.beta')
     # emb_matrix2=ntp.get_topic_emb2('./embfiles/fstm.30000.40.hafull.beta',
     #                                word_index,MAX_NB_WORDS,
     #                                './data/count_data/imdb_raw_full.tok')
