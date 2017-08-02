@@ -63,8 +63,9 @@ def build_model(input_dir, emb_fn='./embfiles/fstm.30000.10.ha2.beta', model_nam
      BATCH_TRAIN_SIZE, BATCH_TEST_SIZE,
      num_sample_train, num_sample_test)\
         =fg.get_meta()
-    emb_matrix=ntp.get_glove_emb_100(GLOVE_DIR,word_index,MAX_NB_WORDS)
+    # emb_matrix=ntp.get_glove_emb_100(GLOVE_DIR,word_index,MAX_NB_WORDS)
     emb_matrix2 = ntp.get_topic_emb(emb_fn)
+    emb_matrix=emb_matrix2
     # emb_matrix3 = ntp.get_topic_emb('./embfiles/fstm.30000.0.ha.beta')
 
     print('start build model')
