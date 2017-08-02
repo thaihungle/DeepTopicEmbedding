@@ -50,7 +50,7 @@ GLOVE_DIR = BASE_DIR + '/glove/'
 
 K.set_learning_phase(1)
 
-def build_model(model_name='ha_lstm', conti=True):
+def build_model(input_dir, emb_fn='./embfiles/fstm.30000.10.ha2.beta', model_name='ha_lstm', conti=True):
     fname_model = os.getcwd() + "/" + model_name + '/modelfile.json'
     model_dir = os.getcwd() + "/" + model_name
 
@@ -58,13 +58,13 @@ def build_model(model_name='ha_lstm', conti=True):
         os.mkdir(model_dir)
 
     print('load prep data...')
-    fg=dg.File_Generator('./data/imdb_prep_stem/',2)
+    fg=dg.File_Generator(input_dir,10)
     (word_index, MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH,
      BATCH_TRAIN_SIZE, BATCH_TEST_SIZE,
      num_sample_train, num_sample_test)\
         =fg.get_meta()
     emb_matrix=ntp.get_glove_emb_100(GLOVE_DIR,word_index,MAX_NB_WORDS)
-    emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.10.ha2.beta')
+    emb_matrix2 = ntp.get_topic_emb(emb_fn)
     # emb_matrix3 = ntp.get_topic_emb('./embfiles/fstm.30000.0.ha.beta')
 
     print('start build model')
@@ -138,7 +138,7 @@ def build_model(model_name='ha_lstm', conti=True):
         att = Reshape((1, att._keras_shape[1]))(att)
         lstm = merge([att, l_lstm], mode='dot', dot_axes=(2, 1))  # [n_samples, rnn_dim]
         lstm = Flatten()(lstm)
-        lstm = merge([lstm, mp], mode='concat')
+        # lstm = merge([lstm, mp], mode='concat')
         sentEncoder = Model(sentence_input, lstm)
 
         # sentEncoder = Model(sentence_input, l_lstm)
@@ -156,7 +156,7 @@ def build_model(model_name='ha_lstm', conti=True):
         print('-----------')
         print(lstm2._keras_shape)
         # lstm3 = Reshape((MAX_SENTS, -1))(lstm2)
-        preds = Dense(2, activation='softmax')(Flatten()(lstm2))
+        preds = Dense(10, activation='softmax')(Flatten()(lstm2))
         # preds = Dense(2, activation='softmax')(l_lstm_sent)
         model = Model(review_input, preds)
 
@@ -191,12 +191,12 @@ def build_model(model_name='ha_lstm', conti=True):
                                   nb_val_samples=num_sample_test//BATCH_TEST_SIZE+1,
                                   callbacks=[checkpointer], class_weight=None)
 
-def evaluate_model(model_name):
+def evaluate_model(input_dir, model_name):
     model_dir = os.getcwd() + "/" + model_name
     fname_model = model_dir + '/modelfile.json'
     fname_weights = model_dir + "/modelweights.h5"
 
-    fg = dg.File_Generator('./data/imdb_prep_stem.pkl/', 2)
+    fg = dg.File_Generator(input_dir, 2)
     (word_index, MAX_NB_WORDS, MAX_SENTS, MAX_SENT_LENGTH, BATCH_TRAIN_SIZE, BATCH_TEST_SIZE) \
         = fg.get_meta()
 
@@ -222,19 +222,31 @@ if __name__ == '__main__':
     model_name = './models/ha_lstm'
     con = True
     mode = 'build'
+    input_dir='./data/big_imdb_prep_ha/'
+    emb_fn='./embfiles/fstm.30000.10.ha2.beta'
+
     if len(sys.argv) >= 2:
-        print("has model name")
-        model_name = sys.argv[1]
+        input_dir = sys.argv[1]
     if len(sys.argv) >= 3:
+        model_name = sys.argv[2]
+    if len(sys.argv) >= 4:
+        print("has model name")
+        emb_fn = sys.argv[3]
+    if len(sys.argv) >= 5:
         print("has con")
-        con = sys.argv[2]
+        con = sys.argv[4]
         if con == "True":
             con = True
         else:
             con = False
-    if len(sys.argv) >= 4:
-        mode = sys.argv[3]
+    if len(sys.argv) >= 6:
+        mode = sys.argv[5]
+
     if mode == 'build':
-        build_model(model_name, con)
+        build_model(input_dir, emb_fn, model_name, con)
     elif mode == 'eval':
-        evaluate_model(model_name)
+        if len(sys.argv) >= 2:
+            input_dir = sys.argv[1]
+        if len(sys.argv) >= 3:
+            model_name = sys.argv[2]
+        evaluate_model(input_dir,model_name)

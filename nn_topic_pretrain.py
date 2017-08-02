@@ -716,8 +716,15 @@ def get_topic_emb(beta_file):
     num_word=beta_mat.shape[0]
     num_dim=beta_mat.shape[1]
     print('num word {} vs num dim {}'.format(num_word, num_dim))
-    embedding_weights = np.random.random((num_word+1,num_dim))
-    embedding_weights[1:,:]=beta_mat #-np.mean(beta_mat, 0)
+    embedding_weights = np.random.uniform(-0.25,0.25,(num_word+1,num_dim))
+    embedding_weights[1:,:]=beta_mat -np.mean(beta_mat, 1,keepdims=True)
+    print(embedding_weights[:10])
+    zero_rows=embedding_weights[~embedding_weights.any(axis=1)]
+    print(zero_rows.shape)
+    embedding_weights[~embedding_weights.any(axis=1)]=\
+        np.random.uniform(-0.25,0.25,zero_rows.shape)
+    print(embedding_weights[:10])
+    # raise False
     return embedding_weights
 
 def get_topic_emb2(beta_file, word2ind, MAX_NB_WORDS, wordind_file):
@@ -1239,6 +1246,8 @@ if __name__ == '__main__':
     #preprocess_rawbig_imdb_ha(MAX_NB_WORDS=30000,
     #                           MAX_SENT_LENGTH=200,
     #                           MAX_SENTS=50)
+
+
 
     gen_imdb_tf_form_batch('./data/big_imdb_count_data/big_imdb_raw_train.data',
                             './data/big_imdb_count_data/big_imdb_raw_test.data',
