@@ -2,8 +2,9 @@
 ////////Step0////////
 install all python3 libs and build SDR if necessary
 it is better to setup virtual environment
-****command sysntax****
+****command sysntax to install lib python****
 pip install -r requirements.txt
+to build SDR cd to two-phase-v2 and follow readme guidline inside
 ////////Step1////////
 Download big imdb data
 http://www.mediafire.com/file/pdzciu93zspaad1/data.json

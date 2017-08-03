@@ -64,12 +64,12 @@ def build_model(model_name='ha_lstm', conti=True):
      (MAX_NB_WORDS,MAX_SENTS,MAX_SENT_LENGTH))\
         =	pickle.load(open('./data/imdb_prep_stem.pkl', 'rb'))
 
-    #emb_matrix=ntp.get_glove_emb_100(GLOVE_DIR,word_index,MAX_NB_WORDS)
-    emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.60.ha2.beta')
+    emb_matrix=ntp.get_glove_emb_100(GLOVE_DIR,word_index,MAX_NB_WORDS)
+    emb_matrix2 = ntp.get_topic_emb('./embfiles/fstm.30000.10.ha2.beta')
     # emb_matrix2=ntp.get_topic_emb2('./embfiles/fstm.30000.40.hafull.beta',
     #                                word_index,MAX_NB_WORDS,
     #                                './data/count_data/imdb_raw_full.tok')
-    emb_matrix=emb_matrix2
+    # emb_matrix=emb_matrix2
     #emb_matrix3 = ntp.get_topic_emb('./embfiles/fstm.30000.0.ha.beta')
 
     print('start build model')
@@ -150,7 +150,7 @@ def build_model(model_name='ha_lstm', conti=True):
         att = Reshape((1, att._keras_shape[1]))(att)
         lstm = merge([att, l_lstm], mode='dot', dot_axes=(2, 1))  # [n_samples, rnn_dim]
         lstm = Flatten()(lstm)
-        # lstm = merge([lstm, mp], mode='concat')
+        lstm = merge([lstm, mp], mode='concat')
         sentEncoder = Model(sentence_input, lstm)
 
         # sentEncoder = Model(sentence_input, l_lstm)
